@@ -15,6 +15,7 @@ public class BruteForce {
 	private boolean printInformation;
 
 	private Encryption e1, e2;
+	private long start, finish;
 
 	public BruteForce(String p_password, int p_maxLength, String p_characters,
 			boolean p_stopAtSuccess, boolean p_printInformation) {
@@ -34,48 +35,31 @@ public class BruteForce {
 		}
 	}
 
-	/*
-	 * private int getGreatestPower(int n) {
+	/**
+	 * Changes representation from numbers to arbitrary set of characters.
+	 * (Defined in the lookup map)
 	 * 
-	 * int i = 8;
-	 * 
-	 * while (i >= 0) { if (n - Math.pow(chars, i) < 0) i--; else return i; //
-	 * return (int)Math.pow(2, i); }
-	 * 
-	 * return 0; }
+	 * @param b
+	 *            Input arraylist
+	 * @param len
+	 * @param p
+	 *            Length of the final value
+	 * @return
 	 */
-
 	private String getChars(ArrayList<String> b, int len, int p) {
-
-		// String a = new String(b);
 		String ret = "";
-
-		// for (int i = 0; i < len; ++i)
-		{
-			// System.out.println(String.valueOf(i) + " " +
-			// String.valueOf(characters[i]));
-			// a = a.replaceAll(Integer.toString(i),
-			// String.valueOf(characters[i]));
-			// System.out.println("replace " + i + " " + a);
-		}
-
-		// a = a.replaceAll("012", "123");
-
-		// System.out.println("SIALALA");
-		// for (int i = 0; i < a.length(); ++i)
 		for (int i = 0; i < b.size(); ++i) {
-			// ret += lookup.get(String.valueOf(a.charAt(i)));
+
 			ret += lookup.get(b.get(i));
-			// System.out.println(a.charAt(i) + " " +
-			// lookup.get(String.valueOf(a.charAt(i))));
+
 		}
 
-		// System.out.println("replaced: " + b + " " + a);
-
-		if (ret.length() >= /* passwordLength */p)
+		// optional first character in the characters array may be added at the
+		// beginning
+		if (ret.length() >= p)
 			return ret;
 		else {
-			int diff = /* passwordLength */p - ret.length();
+			int diff = p - ret.length();
 
 			String d = "";
 
@@ -86,11 +70,21 @@ public class BruteForce {
 		}
 	}
 
-	private ArrayList<String> bin(int n, int r) {
+	/**
+	 * Changes the number from decimal into other positional system
+	 * 
+	 * @param n
+	 *            number (decimal)
+	 * @param r
+	 *            radix
+	 * @return
+	 */
+	private ArrayList<String> repr(int n, int r) {
 		int d, m;
 
 		ArrayList<Integer> b = new ArrayList<Integer>();
 
+		// just changing representation
 		do {
 			d = n / r;
 			m = n % r;
@@ -101,72 +95,50 @@ public class BruteForce {
 
 		} while (d != 0 || m != 0);
 
-		// String ret = "";
 		ArrayList<String> ret = new ArrayList<String>();
 
+		// going from the end
 		for (int i = b.size() - 2; i >= 0; i--) {
-			// ret += b.get(i);
 			ret.add(String.valueOf(b.get(i)));
 		}
 
 		return ret;
 	}
 
-	/*
-	 * private String getBinary(int n) {
-	 * 
-	 * // int places = 8; // String[] list = new String[5];
-	 * 
-	 * int g = getGreatestPower(n);
-	 * 
-	 * if (g > 0) System.out.print("1"); else System.out.print(n % chars);
-	 * 
-	 * n -= Math.pow(chars, g);
-	 * 
-	 * for (int d = g - 1; d >= 0; d--) { if (n >= Math.pow(chars, d)) {
-	 * System.out.print("1"); n -= Math.pow(chars, d); } else {
-	 * System.out.print("0"); } }
-	 * 
-	 * System.out.println(); return ""; }
-	 */
-
 	public void attack() {
-		// for (int a = 0; a < 48; a++)
-		// System.out.println(getBinary(a));
 
 		int len = characters.length;
 		boolean finish = false;
 
-		// e.initDecryption("123");
-		// System.out.println("PLAINTEXT: " + new String(e.decrypt()));
-
-		// int options = (int)Math.pow(passwordLength, len);
-		// System.out.println("options: " + options);
-
-		// System.out.println(getChars(bin(1, len), len));
-
+		// try all possible lengths up to specified value
 		for (int p = 1; p <= maxLength; p++) {
 
 			if (printInformation)
-				System.out.println("\n\n\tTrying all passwords of length: " + p + "\n\n");
+				System.out.println("\n\n\tTrying all passwords of length: " + p
+						+ "\n\n");
 
+			// Find the final possible value for this length
 			String endChar = String.valueOf(characters[len - 1]);
 			String end = "";
-			for (int i = 0; i < p /* passwordLength */; ++i)
+			for (int i = 0; i < p; ++i)
 				end += endChar;
 
 			int i = 0;
-			// while (i < options)
 			while (true) {
 
-				ArrayList<String> b = bin(i, len);
+				// get another combination
+				ArrayList<String> b = repr(i, len);
+
+				// ...and change its representation
 				String a = getChars(b, len, p);
+
 				if (printInformation)
 					System.out.println("Trying password: [" + a + "]");
-				// e2.initEncryption(getChars(bin(i, len), len, p));
+
 				e2.initEncryption(a);
 				e2.encrypt();
 
+				// check for success...
 				if (Utils.toHex(e1.getCipherText()).equals(
 						Utils.toHex(e2.getCipherText()))) {
 					System.out.println("\n\n\tPassword broken!\n\tPassword: "
@@ -188,35 +160,17 @@ public class BruteForce {
 				break;
 		}
 
-		// System.out.println(getChars(bin(12034, len), len));
+	}
 
-		//
-		// for (int i = 0; i < 4; i++)
-		// {
-		// for (int j = 0; j < 3; j++)
-		// {
-		// for (int k = 0; k < 3; k++)
-		// {
-		// for (int m = 0; m < characters.length; m++)
-		// {
-		// System.out.println(characters[i % 3] + " " + characters[j % 3] + " "
-		// + characters[k % 3]);
-		// }
-		//
-		//
-		// }
-		// }
-		// }
-
-		// for (int i = 0; i < passwordLength; ++i) {
-		// p = "";
-		//
-		// for (int j = 0; j < characters.length; ++j) {
-		// p += characters[i * j % 4];
-		// }
-		//
-		// System.out.println(p);
-		//
-		// }
+	public void startTimer() {
+		start = System.currentTimeMillis();
+	}
+	
+	public void stopTimer(){
+		finish = System.currentTimeMillis();
+		
+		long diff = finish - start;
+		
+		System.out.println("Finished in: " + diff + " [ms]");
 	}
 }

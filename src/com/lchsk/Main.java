@@ -11,7 +11,7 @@ public class Main {
 
 	// If set to true brute-force search will stop
 	// when it finds the correct password
-	private static final boolean stopAtSuccess = true;
+	private static final boolean stopAtSuccess = false;
 
 	// If set to true, you will be asked
 	// to define a password during runtime
@@ -74,7 +74,9 @@ public class Main {
 			// Brute-force search goes here...
 			BruteForce bf = new BruteForce(defaultPassword, maxPasswordLength,
 					characters, stopAtSuccess, printInformation);
+			bf.startTimer();
 			bf.attack();
+			bf.stopTimer();
 		}
 
 	}
