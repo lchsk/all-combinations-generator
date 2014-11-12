@@ -13,16 +13,21 @@ public class BruteForce {
 
 	private boolean stopAtSuccess;
 	private boolean printInformation;
+	private boolean guessIterationCount;
 
 	private Encryption e1, e2;
 	private long start, finish;
 
-	public BruteForce(String p_password, int p_maxLength, String p_characters,
-			boolean p_stopAtSuccess, boolean p_printInformation) {
+	private int maxIterationCount;
+
+	public BruteForce(String p_password, int p_maxLength, String p_characters, boolean p_stopAtSuccess, boolean p_printInformation,
+			boolean p_guessIterationCount, int p_maxIterationCount) {
 		maxLength = p_maxLength;
 		characters = p_characters.toCharArray();
 		stopAtSuccess = p_stopAtSuccess;
 		printInformation = p_printInformation;
+		guessIterationCount = p_guessIterationCount;
+		maxIterationCount = p_maxIterationCount;
 
 		e1 = new Encryption();
 		e1.initEncryption(p_password);
@@ -108,14 +113,12 @@ public class BruteForce {
 	public void attack() {
 
 		int len = characters.length;
-		boolean finish = false;
 
 		// try all possible lengths up to specified value
 		for (int p = 1; p <= maxLength; p++) {
 
 			if (printInformation)
-				System.out.println("\n\n\tTrying all passwords of length: " + p
-						+ "\n\n");
+				System.out.println("\n\n\tTrying all passwords of length: " + p + "\n\n");
 
 			// Find the final possible value for this length
 			String endChar = String.valueOf(characters[len - 1]);
@@ -135,19 +138,31 @@ public class BruteForce {
 				if (printInformation)
 					System.out.println("Trying password: [" + a + "]");
 
-				e2.initEncryption(a);
-				e2.encrypt();
+				int count = 1;
 
-				// check for success...
-				if (Utils.toHex(e1.getCipherText()).equals(
-						Utils.toHex(e2.getCipherText()))) {
-					System.out.println("\n\n\tPassword broken!\n\tPassword: "
-							+ a + "\n\n");
+				while (count <= maxIterationCount) {
 
-					if (stopAtSuccess) {
-						finish = true;
-						break;
+					if (guessIterationCount)
+						e2.initEncryption(a, count);
+					else
+						e2.initEncryption(a);
+					e2.encrypt();
+
+					// check for success...
+					if (Utils.toHex(e1.getCipherText()).equals(Utils.toHex(e2.getCipherText()))) {
+						System.out.println("\n\n\tPassword broken!\n\tPassword: " + a + "\n");
+						if (guessIterationCount)
+							System.out.println("\tGuessed Iteration Count: " + count + "\n\n");
+
+						if (stopAtSuccess) {
+							return;
+						}
 					}
+
+					count++;
+
+					if (!guessIterationCount)
+						break;
 				}
 
 				i++;
@@ -155,9 +170,6 @@ public class BruteForce {
 				if (a.equals(end))
 					break;
 			}
-
-			if (finish)
-				break;
 		}
 
 	}
@@ -165,12 +177,12 @@ public class BruteForce {
 	public void startTimer() {
 		start = System.currentTimeMillis();
 	}
-	
-	public void stopTimer(){
+
+	public void stopTimer() {
 		finish = System.currentTimeMillis();
-		
+
 		long diff = finish - start;
-		
+
 		System.out.println("Finished in: " + diff + " [ms]");
 	}
 }

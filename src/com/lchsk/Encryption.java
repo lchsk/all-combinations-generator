@@ -13,10 +13,13 @@ public class Encryption {
 		private PBEKeySpec pbeKeySpec;
 		private PBEParameterSpec pbeParamSpec;
 		private SecretKeyFactory keyFac;
-		private byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21,
-				(byte) 0x8c, (byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
+		private byte[] salt = { (byte) 0xc7, (byte) 0x73, (byte) 0x21, (byte) 0x8c, (byte) 0x7e, (byte) 0xc8, (byte) 0xee, (byte) 0x99 };
 		private Cipher cipher;
-		private int count = 2048;
+		private int count;
+
+		public EncryptionData(int p_count) {
+			count = p_count;
+		}
 	}
 
 	private byte[] cleartext = "default".getBytes();
@@ -25,9 +28,12 @@ public class Encryption {
 	private EncryptionData e;
 	private EncryptionData d;
 
-	public void initEncryption(String p_password) {
+	// Default iteration count
+	private final int iterationCount = 8;
+
+	public void initEncryption(String p_password, int p_iterationCount) {
 		try {
-			e = new EncryptionData();
+			e = new EncryptionData(p_iterationCount);
 			e.pbeParamSpec = new PBEParameterSpec(e.salt, e.count);
 			e.pbeKeySpec = new PBEKeySpec(p_password.toCharArray());
 			e.keyFac = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
@@ -40,9 +46,13 @@ public class Encryption {
 		}
 	}
 
+	public void initEncryption(String p_password) {
+		initEncryption(p_password, iterationCount);
+	}
+
 	public void initDecryption(String p_password) {
 		try {
-			d = new EncryptionData();
+			d = new EncryptionData(iterationCount);
 			d.pbeParamSpec = new PBEParameterSpec(d.salt, d.count);
 			d.pbeKeySpec = new PBEKeySpec(p_password.toCharArray());
 			d.keyFac = SecretKeyFactory.getInstance("PBEWithMD5AndDES");

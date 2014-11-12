@@ -11,7 +11,7 @@ public class Main {
 
 	// If set to true brute-force search will stop
 	// when it finds the correct password
-	private static final boolean stopAtSuccess = false;
+	private static final boolean stopAtSuccess = true;
 
 	// If set to true, you will be asked
 	// to define a password during runtime
@@ -30,7 +30,15 @@ public class Main {
 
 	// Brute-force algorithm will look for all possible
 	// combinations of length 1..Max
-	private static final int maxPasswordLength = 4;
+	private static final int maxPasswordLength = 5;
+
+	// If set to true, brute-force search will try
+	// all possible iteration counts
+	private static final boolean guessIterationCount = true;
+
+	// Maximum iteration count while carrying on
+	// brute-force search without knowing iteration count
+	private static final int maxIterationCount = 8;
 
 	// --------------
 
@@ -46,34 +54,30 @@ public class Main {
 			e.initEncryption(pass);
 
 			System.out.println("Your secret will be encrypted.");
-			System.out
-					.println("Here's ciphertext: " + Utils.toHex(e.encrypt()));
+			System.out.println("Here's ciphertext: " + Utils.toHex(e.encrypt()));
 
 			System.out.println();
 
 			boolean tryAgain = true;
 
 			while (tryAgain) {
-				System.out
-						.println("Please type your password again to decrypt the secret message:");
+				System.out.println("Please type your password again to decrypt the secret message:");
 				pass = s.nextLine();
 				e.initDecryption(pass);
 
 				try {
-					System.out.println("Here's your decrypted message: \n"
-							+ new String(e.decrypt()));
+					System.out.println("Here's your decrypted message: \n" + new String(e.decrypt()));
 					tryAgain = false;
 					System.exit(0);
 				} catch (Exception exception) {
 					tryAgain = true;
-					System.out
-							.println("Password you've just typed in does not match the one you've typed before. Please try again.");
+					System.out.println("Password you've just typed in does not match the one you've typed before. Please try again.");
 				}
 			}
 		} else {
 			// Brute-force search goes here...
-			BruteForce bf = new BruteForce(defaultPassword, maxPasswordLength,
-					characters, stopAtSuccess, printInformation);
+			BruteForce bf = new BruteForce(defaultPassword, maxPasswordLength, characters, stopAtSuccess, printInformation, guessIterationCount,
+					maxIterationCount);
 			bf.startTimer();
 			bf.attack();
 			bf.stopTimer();
