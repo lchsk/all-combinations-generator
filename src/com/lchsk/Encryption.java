@@ -29,7 +29,7 @@ public class Encryption {
 	private EncryptionData d;
 
 	// Default iteration count
-	private final int iterationCount = 8;
+	private final int iterationCount = 2048;
 
 	public void initEncryption(String p_password, int p_iterationCount) {
 		try {

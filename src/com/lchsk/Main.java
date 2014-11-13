@@ -3,7 +3,7 @@ package com.lchsk;
 import java.util.Scanner;
 
 public class Main {
-	// Settings below
+	// Settings
 
 	// Characters that will be used while performing
 	// brute-force search for all possible passwords
@@ -19,7 +19,7 @@ public class Main {
 
 	// If setting 'askForPassword' == false, then
 	// this password will be used
-	private static final String defaultPassword = "123";
+	private static final String defaultPassword = "654";
 
 	// Secret text that will be encrypted
 	private static final String secret = "Secret Text";
@@ -30,15 +30,15 @@ public class Main {
 
 	// Brute-force algorithm will look for all possible
 	// combinations of length 1..Max
-	private static final int maxPasswordLength = 5;
+	private static final int maxPasswordLength = 3;
 
 	// If set to true, brute-force search will try
 	// all possible iteration counts
-	private static final boolean guessIterationCount = true;
+	private static final boolean guessIterationCount = false;
 
 	// Maximum iteration count while carrying on
 	// brute-force search without knowing iteration count
-	private static final int maxIterationCount = 8;
+	private static final int maxIterationCount = 4096;
 
 	// --------------
 
@@ -75,6 +75,14 @@ public class Main {
 				}
 			}
 		} else {
+
+			System.out.println("Brute-force search starting...");
+			System.out.println("Settings:");
+			System.out.println("characters: " + characters + "; stopAtSuccess: " + stopAtSuccess + "; askForPassword: " + askForPassword
+					+ "; defaultPassword: " + defaultPassword + "; secret: " + secret + "; printInformation: " + printInformation
+					+ "; maxPasswordLength: " + maxPasswordLength + "; guessIterationCount: " + guessIterationCount + "; maxIterationCount: "
+					+ maxIterationCount);
+
 			// Brute-force search goes here...
 			BruteForce bf = new BruteForce(defaultPassword, maxPasswordLength, characters, stopAtSuccess, printInformation, guessIterationCount,
 					maxIterationCount);
